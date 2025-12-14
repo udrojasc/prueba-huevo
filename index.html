@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huevo interactivo</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f1e6;
+      --text: #2d1b0d;
+      --accent: #f2c94c;
+      --muted: #7a6b5b;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 20% 20%, #fff9ed, #f1e4d3 60%, #e7d8c5);
+      color: var(--text);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #e0d4c4;
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(35, 24, 15, 0.12);
+      padding: 32px 28px;
+      width: min(420px, 90vw);
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 8px 0 18px;
+      color: var(--muted);
+    }
+
+    button {
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      filter: brightness(0.96);
+    }
+
+    .scene {
+      display: grid;
+      place-items: center;
+      margin: 10px 0 8px;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Huevo sorpresa</h1>
+    <p id="status" aria-live="polite">Haz clic en el huevo 5 veces para ver al pollito.</p>
+    <div class="scene">
+      <button id="eggButton" aria-label="Huevo interactivo">
+        <img id="eggImage" src="" alt="Huevo" width="180" height="200" loading="lazy" />
+      </button>
+    </div>
+    <p class="hint" id="hint" aria-live="polite">Quedan 5 clics.</p>
+  </main>
+
+  <script>
+    const eggSvg = `data:image/svg+xml;utf8,
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'>
+        <defs>
+          <linearGradient id='shell' x1='0' x2='0' y1='0' y2='1'>
+            <stop offset='0%' stop-color='%23fff7eb'/>
+            <stop offset='100%' stop-color='%23e8d6bf'/>
+          </linearGradient>
+        </defs>
+        <ellipse cx='110' cy='130' rx='82' ry='110' fill='url(%23shell)' stroke='%23d2b996' stroke-width='6'/>
+        <ellipse cx='115' cy='90' rx='30' ry='38' fill='white' opacity='0.45'/>
+      </svg>`;
+
+    const chickSvg = `data:image/svg+xml;utf8,
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 260'>
+        <circle cx='110' cy='135' r='82' fill='%23f7d047' stroke='%23e0a328' stroke-width='6'/>
+        <ellipse cx='110' cy='120' rx='36' ry='30' fill='white' opacity='0.3'/>
+        <circle cx='80' cy='125' r='10' fill='%231f1f1f'/>
+        <circle cx='140' cy='125' r='10' fill='%231f1f1f'/>
+        <polygon points='110,145 94,168 126,168' fill='%23e06a24'/>
+        <path d='M70 175 q40 30 80 0' fill='none' stroke='%231f1f1f' stroke-width='6' stroke-linecap='round'/>
+        <polygon points='110,55 124,85 96,85' fill='%23f7d047' stroke='%23e0a328' stroke-width='4'/>
+        <polygon points='80,210 110,180 140,210' fill='%23f7d047' stroke='%23e0a328' stroke-width='4'/>
+      </svg>`;
+
+    const eggImage = document.getElementById('eggImage');
+    const statusText = document.getElementById('status');
+    const hintText = document.getElementById('hint');
+    const button = document.getElementById('eggButton');
+
+    let clicks = 0;
+    const maxClicks = 5;
+
+    const updateUI = () => {
+      const remaining = Math.max(0, maxClicks - clicks);
+
+      if (clicks >= maxClicks) {
+        eggImage.src = chickSvg;
+        eggImage.alt = 'Pollito';
+        statusText.textContent = '¡El huevo se rompió y salió el pollito!';
+        hintText.textContent = 'Puedes seguir haciendo clic para saludarlo.';
+      } else {
+        eggImage.src = eggSvg;
+        eggImage.alt = 'Huevo';
+        const progressText = clicks === 0
+          ? 'Aún no has hecho clic. Empieza para que nazca el pollito.'
+          : `Llevas ${clicks} de ${maxClicks} clics.`;
+
+        statusText.textContent = progressText;
+        hintText.textContent = remaining === 1
+          ? '¡Solo falta 1 clic!'
+          : `Quedan ${remaining} clics.`;
+      }
+    };
+
+    button.addEventListener('click', () => {
+      clicks += 1;
+      updateUI();
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
